@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Startly</title>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI';
+            background: linear-gradient(135deg, #0a66c2, #6a11cb);
+            color: white;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 20% 50% 30%;
+            gap: 15px;
+            padding: 15px;
+        }
+        
+        .card {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 15px;
+        }
+        
+        .feed-item {
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 10px;
+            border-radius: 15px;
+        }
+        
+        #chatBox {
+            height: 300px;
+            overflow-y: auto;
+        }
+        
+        .online {
+            color: lightgreen;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- PROFILE -->
+        <div class="card">
+            <h3>Profile</h3>
+            <p>Skills: Python</p>
+            <p>Goal: Build startup</p>
+        </div>
+
+        <!-- FEED -->
+        <div class="card">
+            <h2>Startup Ideas</h2>
+
+            <textarea id="ideaInput"></textarea>
+            <button onclick="postIdea()">Post</button>
+
+            <div id="ideas"></div>
+        </div>
+
+        <!-- CHAT -->
+        <div class="card">
+            <h3>Chat</h3>
+
+            <div id="users"></div>
+            <hr>
+
+            <div id="chatBox"></div>
+
+            <input id="msg">
+            <button onclick="sendMsg()">Send</button>
+        </div>
+
+    </div>
+
+    <!-- Kurama -->
+    <div onclick="toggleKurama()" style="position:fixed;bottom:20px;right:20px;">🤖</div>
+
+    <div id="kurama" style="display:none;position:fixed;bottom:80px;right:20px;background:black;padding:10px;">
+        <div id="kchat"></div>
+        <input id="kmsg">
+        <button onclick="sendKurama()">Send</button>
+    </div>
+
+    <script>
+        const socket = io();
+        let currentUser = null;
+
+        // USERS
+        fetch('/matches').then(res => res.json()).then(data => {
+            let div = document.getElementById('users');
+            data.forEach(u => {
+                div.innerHTML += `
+        <div onclick="currentUser=${u[0]}">
+        ${u[1]} <span id="s-${u[0]}" class="online"></span>
+        </div>`;
+            });
+        });
+
+        // ONLINE
+        socket.on('online_users', (list) => {
+            list.forEach(id => {
+                let el = document.getElementById(`s-${id}`);
+                if (el) el.innerText = "● online";
+            });
+        });
+
+        // CHAT
+        function sendMsg() {
+            let msg = document.getElementById('msg').value;
+
+            socket.emit('send_message', {
+                receiver_id: currentUser,
+                message: msg
+            });
+        }
+
+        socket.on('receive_message', (data) => {
+            document.getElementById('chatBox').innerHTML += `<p>${data.message}</p>`;
+        });
+
+        // IDEAS
+        function postIdea() {
+            let content = document.getElementById("ideaInput").value;
+
+            fetch('/add_idea', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    content
+                })
+            }).then(loadIdeas);
+        }
+
+        function loadIdeas() {
+            fetch('/ideas').then(res => res.json()).then(data => {
+                let div = document.getElementById('ideas');
+                div.innerHTML = "";
+
+                data.forEach(i => {
+                    div.innerHTML += `
+            <div class="feed-item">
+                <b>${i[1]}</b>
+                <p>${i[2]}</p>
+
+                <button onclick="likeIdea(${i[0]})">❤️</button>
+                <button onclick="showComments(${i[0]})">💬</button>
+
+                <div id="c-${i[0]}"></div>
+
+                <input id="i-${i[0]}">
+                <button onclick="addComment(${i[0]})">Send</button>
+            </div>`;
+                });
+            });
+        }
+
+        function likeIdea(id) {
+            fetch('/like', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    idea_id: id
+                })
+            });
+        }
+
+        function addComment(id) {
+            let text = document.getElementById(`i-${id}`).value;
+
+            fetch('/comment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    idea_id: id,
+                    comment: text
+                })
+            }).then(() => showComments(id));
+        }
+
+        function showComments(id) {
+            fetch(`/comments/${id}`).then(res => res.json()).then(data => {
+                let div = document.getElementById(`c-${id}`);
+                div.innerHTML = "";
+                data.forEach(c => {
+                    div.innerHTML += `<p>${c[0]}: ${c[1]}</p>`;
+                });
+            });
+        }
+
+        loadIdeas();
+
+        // Kurama
+        function toggleKurama() {
+            let k = document.getElementById("kurama");
+            k.style.display = k.style.display === "none" ? "block" : "none";
+        }
+
+        function sendKurama() {
+            let msg = document.getElementById("kmsg").value;
+
+            fetch('/kurama', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: msg
+                    })
+                }).then(res => res.json())
+                .then(data => {
+                    document.getElementById("kchat").innerHTML += `<p>${data.reply}</p>`;
+                });
+        }
+    </script>
+
+</body>
+
+</html>

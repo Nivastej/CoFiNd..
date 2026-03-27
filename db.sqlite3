@@ -1,0 +1,40 @@
+def init_db():
+    scored = []
+    for u in users:
+        if u[0] != current[0]:
+            scored.append((u, score(current, u)))
+
+    scored.sort(key=lambda x: x[1], reverse=True)
+    result = [u[0] for u in scored]
+
+    conn.close()
+    return jsonify(result)
+
+# ================= STARTUP IDEAS =================
+@app.route('/add_idea', methods=['POST'])
+def add_idea():
+    data = request.form
+    conn = sqlite3.connect('db.sqlite3')
+    c = conn.cursor()
+
+    c.execute("INSERT INTO ideas (title,description) VALUES (?,?)",
+              (data['title'], data['description']))
+    conn.commit()
+    conn.close()
+
+    return redirect('/')
+
+@app.route('/ideas')
+def ideas():
+    conn = sqlite3.connect('db.sqlite3')
+    c = conn.cursor()
+
+    c.execute("SELECT * FROM ideas")
+    data = c.fetchall()
+
+    conn.close()
+    return jsonify(data)
+
+# ================= RUN =================
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Startly</title>
+
+    <style>
+        /* GLOBAL */
+        
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(-45deg, #0a66c2, #6a11cb, #2563eb, #9333ea);
+            background-size: 400% 400%;
+            animation: gradientMove 12s ease infinite;
+            height: 100vh;
+            overflow: hidden;
+            color: white;
+        }
+        
+        @keyframes gradientMove {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        /* NAVBAR */
+        
+        .navbar {
+            position: absolute;
+            top: 20px;
+            left: 40px;
+            font-size: 26px;
+            font-weight: bold;
+        }
+        /* TAGLINE */
+        
+        .tagline {
+            position: absolute;
+            top: 90px;
+            left: 40px;
+            max-width: 320px;
+            line-height: 1.6;
+            opacity: 0.85;
+        }
+        /* TYPING TEXT */
+        
+        #typing {
+            font-size: 18px;
+            margin-top: 10px;
+            color: #e0f2fe;
+        }
+        /* CONTAINER */
+        
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            gap: 50px;
+        }
+        /* CARD */
+        
+        .card {
+            position: relative;
+            backdrop-filter: blur(25px) saturate(180%);
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 35px;
+            width: 300px;
+            transition: 0.4s;
+            overflow: hidden;
+            animation: fadeInUp 1s ease forwards, float 6s ease-in-out infinite;
+        }
+        /* ENTRY ANIMATION */
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* FLOAT */
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        /* LIGHT SWEEP */
+        
+        .card::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transform: rotate(25deg);
+            opacity: 0;
+            transition: 0.6s;
+        }
+        /* HOVER */
+        
+        .card:hover {
+            transform: translateY(-12px) scale(1.03);
+        }
+        
+        .card:hover::before {
+            opacity: 1;
+            transform: rotate(25deg) translateX(60%);
+        }
+        /* INPUT */
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transition: 0.3s;
+        }
+        
+        input:focus {
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+            transform: scale(1.02);
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        /* BUTTON */
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 10px;
+            border: none;
+            background: white;
+            color: #0a66c2;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        /* RIPPLE */
+        
+        .ripple {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: rgba(10, 102, 194, 0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: rippleAnim 0.6s linear;
+        }
+        
+        @keyframes rippleAnim {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        /* BLOBS */
+        
+        .blob,
+        .blob2 {
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.6;
+            z-index: -1;
+        }
+        
+        .blob {
+            top: 10%;
+            left: 10%;
+            background: #0a66c2;
+        }
+        
+        .blob2 {
+            bottom: 10%;
+            right: 10%;
+            background: #6a11cb;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="navbar">🚀 Startly</div>
+
+    <div class="tagline">
+        Build your startup team with AI.<br>
+        <span id="typing"></span>
+    </div>
+
+    <div class="blob"></div>
+    <div class="blob2"></div>
+
+    <div class="container">
+
+        <div class="card">
+            <h2>Create Account</h2>
+            <form method="POST" action="/signup">
+                <input name="name" placeholder="Full Name" required>
+                <input name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <input name="skills" placeholder="Skills (React, AI)" required>
+                <input name="goals" placeholder="Goals (Startup, Freelance)" required>
+                <button>Sign Up</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Welcome Back</h2>
+            <form method="POST" action="/login">
+                <input name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button>Login</button>
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        // Typing effect
+        const text = "Find your perfect co-founder 🚀";
+        let i = 0;
+
+        function type() {
+            if (i < text.length) {
+                document.getElementById("typing").innerHTML += text.charAt(i);
+                i++;
+                setTimeout(type, 40);
+            }
+        }
+        type();
+
+        // Ripple effect
+        document.querySelectorAll("button").forEach(btn => {
+            btn.addEventListener("click", function(e) {
+                let circle = document.createElement("span");
+                circle.classList.add("ripple");
+
+                let rect = btn.getBoundingClientRect();
+                circle.style.left = e.clientX - rect.left + "px";
+                circle.style.top = e.clientY - rect.top + "px";
+
+                this.appendChild(circle);
+
+                setTimeout(() => circle.remove(), 600);
+            });
+        });
+
+        // 3D tilt
+        document.addEventListener("mousemove", (e) => {
+            let x = (e.clientX / window.innerWidth - 0.5) * 15;
+            let y = (e.clientY / window.innerHeight - 0.5) * 15;
+
+            document.querySelectorAll(".card").forEach(card => {
+                card.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+            });
+        });
+    </script>
+
+</body>
+
+</html>
